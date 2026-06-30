@@ -1,0 +1,19 @@
+<Project>
+
+  <!-- Shared build settings applied to every project in the solution. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Missing XML comment warnings are noisy during scaffolding. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Product>YouTube Screen Recorder</Product>
+    <Company>SoftStandard</Company>
+    <Version>0.1.0</Version>
+    <Copyright>Copyright © 2026</Copyright>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Core contains models, enums, and service contracts (interfaces) ONLY.
+    It targets plain net8.0 with ZERO third-party dependencies so that the
+    domain and all orchestration logic remain fully unit-testable without
+    any Windows / native / UI references.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ScreenRecorder.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>
