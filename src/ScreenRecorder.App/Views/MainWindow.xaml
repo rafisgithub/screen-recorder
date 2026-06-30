@@ -1,0 +1,288 @@
+<Window x:Class="ScreenRecorder.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:ScreenRecorder.App.Converters"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="{Binding Title}"
+        Height="740" Width="1100"
+        MinHeight="620" MinWidth="940"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+
+    <Window.Resources>
+        <conv:RecordingStateToBrushConverter x:Key="StateToBrush" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header ============ -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                Padding="20,16">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="14" Height="14" VerticalAlignment="Center"
+                             Fill="{Binding Recording.State, Converter={StaticResource StateToBrush}}" />
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource Heading}"
+                               Margin="12,0,0,0" VerticalAlignment="Center" />
+                    <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="6"
+                            Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding VersionLabel}" Style="{StaticResource Caption}" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding Recording.StateText}" HorizontalAlignment="Right"
+                           VerticalAlignment="Center" Style="{StaticResource StatValue}"
+                           Foreground="{Binding Recording.State, Converter={StaticResource StateToBrush}}" />
+            </Grid>
+        </Border>
+
+        <!-- ============ Body ============ -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="390" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ----- Left: configuration ----- -->
+            <ScrollViewer Grid.Column="0" Margin="0,0,16,0"
+                          VerticalScrollBarVisibility="Auto"
+                          IsEnabled="{Binding Recording.IsIdle}">
+                <StackPanel>
+
+                    <!-- Source -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="SOURCE" Style="{StaticResource SectionTitle}" />
+                            <TextBlock Text="Capture target" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                            <ComboBox ItemsSource="{Binding Settings.Targets}"
+                                      SelectedItem="{Binding Settings.SelectedTarget}" />
+                            <Button Content="Pick window / screen…"
+                                    Command="{Binding Settings.PickTargetCommand}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    HorizontalAlignment="Left" Margin="0,10,0,0" />
+                            <CheckBox Content="Capture mouse cursor"
+                                      IsChecked="{Binding Settings.CaptureCursor}" Margin="0,12,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Video -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="VIDEO" Style="{StaticResource SectionTitle}" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Resolution" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                                    <ComboBox ItemsSource="{Binding Settings.ResolutionOptions}"
+                                              SelectedItem="{Binding Settings.SelectedResolution}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Frame rate (fps)" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                                    <ComboBox ItemsSource="{Binding Settings.FrameRateOptions}"
+                                              SelectedItem="{Binding Settings.SelectedFrameRate}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Codec" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                                    <ComboBox ItemsSource="{Binding Settings.CodecOptions}"
+                                              SelectedItem="{Binding Settings.SelectedCodec}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Rate control" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                                    <ComboBox ItemsSource="{Binding Settings.RateControlOptions}"
+                                              SelectedItem="{Binding Settings.SelectedRateControl}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Constant-quality controls -->
+                            <StackPanel Visibility="{Binding Settings.IsQualityMode, Converter={StaticResource BoolToVis}}">
+                                <Grid Margin="0,12,0,0">
+                                    <TextBlock Text="Quality (CRF / CQP)" Style="{StaticResource FieldLabel}" Margin="0" />
+                                    <TextBlock Text="{Binding Settings.QualityLevel}" HorizontalAlignment="Right"
+                                               Foreground="{StaticResource InfoBrush}" FontWeight="SemiBold" />
+                                </Grid>
+                                <Slider Minimum="14" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True"
+                                        Value="{Binding Settings.QualityLevel}" Margin="0,2,0,0" />
+                                <TextBlock Text="Lower is higher quality. 18–23 is visually lossless."
+                                           Style="{StaticResource Caption}" Margin="0,2,0,0" />
+                            </StackPanel>
+
+                            <!-- Bitrate controls -->
+                            <StackPanel Visibility="{Binding Settings.IsBitrateMode, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Target bitrate (kbps)" Style="{StaticResource FieldLabel}" />
+                                <TextBox Text="{Binding Settings.BitrateKbps}" />
+                            </StackPanel>
+
+                            <CheckBox Content="Prefer hardware encoder (NVENC / Quick Sync / AMF)"
+                                      IsChecked="{Binding Settings.PreferHardwareEncoding}" Margin="0,14,0,0" />
+
+                            <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="8"
+                                    Padding="12,10" Margin="0,12,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Selected encoder" Style="{StaticResource StatLabel}" />
+                                    <TextBlock Text="{Binding Settings.SelectedEncoderPreview}"
+                                               Foreground="{StaticResource InfoBrush}" FontWeight="SemiBold"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Audio -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="AUDIO" Style="{StaticResource SectionTitle}" />
+
+                            <CheckBox Content="System audio (desktop loopback)"
+                                      IsChecked="{Binding Settings.CaptureSystemAudio}" />
+                            <ComboBox ItemsSource="{Binding Settings.RenderDevices}"
+                                      SelectedItem="{Binding Settings.SelectedRenderDevice}"
+                                      IsEnabled="{Binding Settings.CaptureSystemAudio}" Margin="0,6,0,0" />
+
+                            <CheckBox Content="Microphone"
+                                      IsChecked="{Binding Settings.CaptureMicrophone}" Margin="0,14,0,0" />
+                            <ComboBox ItemsSource="{Binding Settings.CaptureDevices}"
+                                      SelectedItem="{Binding Settings.SelectedCaptureDevice}"
+                                      IsEnabled="{Binding Settings.CaptureMicrophone}" Margin="0,6,0,0" />
+
+                            <TextBlock Text="AAC bitrate (kbps)" Style="{StaticResource FieldLabel}" />
+                            <ComboBox SelectedItem="{Binding Settings.AudioBitrateKbps}">
+                                <sys:Int32>128</sys:Int32>
+                                <sys:Int32>160</sys:Int32>
+                                <sys:Int32>192</sys:Int32>
+                                <sys:Int32>256</sys:Int32>
+                                <sys:Int32>320</sys:Int32>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Output -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="OUTPUT" Style="{StaticResource SectionTitle}" />
+
+                            <TextBlock Text="Save to folder" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding Settings.OutputDirectory}" />
+                                <Button Grid.Column="1" Content="Browse…"
+                                        Command="{Binding Settings.BrowseOutputCommand}"
+                                        Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" />
+                            </Grid>
+
+                            <TextBlock Text="File name" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.FileNameTemplate}" />
+                            <TextBlock Text="{}{timestamp} is replaced with the recording time; .mp4 is added automatically."
+                                       Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Settings actions -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Button Content="Save settings" Command="{Binding Settings.SaveCommand}"
+                                Style="{StaticResource SecondaryButton}" />
+                        <Button Content="Reset to defaults" Command="{Binding Settings.ResetCommand}"
+                                Style="{StaticResource SecondaryButton}" Margin="10,0,0,0" />
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ----- Right: recorder ----- -->
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Preview / timer -->
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceAltBrush}" CornerRadius="10"
+                            MinHeight="260" Margin="0,0,0,16">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding Recording.ElapsedDisplay}" Style="{StaticResource BigTimer}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding Recording.StateText}" Style="{StaticResource Caption}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            <TextBlock Text="Live preview appears here while recording (Milestone 7)"
+                                       Style="{StaticResource Caption}" Foreground="{StaticResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" Margin="0,22,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Transport controls -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                        <Button Content="●  Record" Command="{Binding Recording.StartCommand}"
+                                Style="{StaticResource PrimaryButton}" MinWidth="140" />
+                        <Button Content="{Binding Recording.PauseResumeText}"
+                                Command="{Binding Recording.PauseResumeCommand}"
+                                Style="{StaticResource SecondaryButton}" MinWidth="120" Margin="10,0,0,0" />
+                        <Button Content="■  Stop" Command="{Binding Recording.StopCommand}"
+                                Style="{StaticResource SecondaryButton}" MinWidth="120" Margin="10,0,0,0" />
+                    </StackPanel>
+
+                    <!-- Live statistics -->
+                    <Border Grid.Row="2" Background="{StaticResource SurfaceAltBrush}" CornerRadius="10" Padding="18,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding Recording.EncoderDisplay}" Style="{StaticResource StatValue}" />
+                                <TextBlock Text="Encoder" Style="{StaticResource StatLabel}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Recording.FpsDisplay}" Style="{StaticResource StatValue}" />
+                                <TextBlock Text="Throughput" Style="{StaticResource StatLabel}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{Binding Recording.FileSizeDisplay}" Style="{StaticResource StatValue}" />
+                                <TextBlock Text="File size" Style="{StaticResource StatLabel}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ============ Status bar ============ -->
+        <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+                Padding="20,8">
+            <Grid>
+                <TextBlock Text="{Binding Recording.StatusMessage}" Style="{StaticResource Caption}"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Recording.OutputPathDisplay}" Style="{StaticResource Caption}"
+                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" MaxWidth="520" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
