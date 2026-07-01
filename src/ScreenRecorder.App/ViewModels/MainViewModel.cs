@@ -28,7 +28,7 @@ public sealed class MainViewModel : ViewModelBase
 
     public string Title => "YouTube Screen Recorder";
 
-    public string VersionLabel => "v0.1.0 · Scaffold";
+    public string VersionLabel => "v1.0.0";
 
     public bool IsInitialized
     {
