@@ -50,7 +50,11 @@ internal static unsafe class FFmpegInterop
                     ffmpeg.RootPath = root;
                 }
 
-                // First native call: forces the DLLs to load from RootPath/PATH.
+                // FFmpeg.AutoGen 7 uses dynamic P/Invoke bindings: must call
+                // Initialize() to wire up all function pointers before any native call.
+                DynamicallyLoadedBindings.Initialize();
+
+                // First native call: verifies the DLLs actually loaded.
                 VersionInfo = ffmpeg.av_version_info();
                 uint codecVersion = ffmpeg.avcodec_version();
                 int major = (int)(codecVersion >> 16);
