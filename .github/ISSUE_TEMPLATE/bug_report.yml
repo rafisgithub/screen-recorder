@@ -1,0 +1,58 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Settings
+        2. Select HEVC + Quick Sync
+        3. Start a recording
+        4. ...
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 23H2, build 22631
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gpu-vendor
+    attributes:
+      label: GPU vendor
+      options:
+        - NVIDIA
+        - Intel
+        - AMD
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Rolling Serilog logs, if available.
+      render: shell

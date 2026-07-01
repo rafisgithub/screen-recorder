@@ -62,13 +62,13 @@ Each module is implemented and reviewed before the next begins.
 
 | #  | Module                          | Key types                                                       |
 |----|---------------------------------|-----------------------------------------------------------------|
-| 0  | **Scaffold** ✅ (this commit)   | Solution, projects, DI, models, interfaces, UI shell            |
-| 1  | Settings + capture targets      | `JsonSettingsService`, `CaptureTargetProvider`, `AudioDeviceProvider` |
-| 2  | Hardware capability detection   | `HardwareCapabilityService`, `EncoderFactory`                   |
-| 3  | Video capture                   | `GraphicsCaptureService`, D3D11 interop                         |
-| 4  | Audio capture                   | `WasapiLoopbackCaptureService`, `WasapiMicrophoneCaptureService`|
-| 5  | Encoding + muxing               | `FFmpegVideoEncoder`, `FFmpegAudioEncoder`, `FFmpegMuxer`       |
-| 6  | Orchestration                   | `RecordingOrchestrator` (A/V sync, lifecycle)                   |
+| 0  | **Scaffold** ✅                 | Solution, projects, DI, models, interfaces, UI shell            |
+| 1  | **Settings + capture targets** ✅ | `JsonSettingsService`, `CaptureTargetProvider`, `AudioDeviceProvider` |
+| 2  | **Hardware capability detection** ✅ | `HardwareCapabilityService`, `EncoderFactory`                   |
+| 3  | **Video capture** ✅            | `GraphicsCaptureService`, D3D11 interop                         |
+| 4  | **Audio capture** ✅            | `WasapiLoopbackCaptureService`, `WasapiMicrophoneCaptureService`|
+| 5  | **Encoding + muxing** ✅        | `FFmpegVideoEncoder`, `FFmpegAudioEncoder`, `FFmpegMuxer`       |
+| 6  | **Orchestration** ✅            | `RecordingOrchestrator` (A/V sync, lifecycle)                   |
 | 7  | UI polish + previews            | live preview, device meters, hotkeys                            |
 
 ## Threading model

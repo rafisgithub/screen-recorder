@@ -10,9 +10,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Missing XML comment warnings are noisy during scaffolding. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <Product>YouTube Screen Recorder</Product>
+    <Product>Screen Recorder</Product>
     <Company>SoftStandard</Company>
-    <Version>0.1.0</Version>
+    <Version>1.0.1</Version>
     <Copyright>Copyright © 2026</Copyright>
   </PropertyGroup>
 
