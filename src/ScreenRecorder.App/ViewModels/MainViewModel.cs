@@ -26,9 +26,9 @@ public sealed class MainViewModel : ViewModelBase
 
     public SettingsViewModel Settings { get; }
 
-    public string Title => "YouTube Screen Recorder";
+    public string Title => "Screen Recorder";
 
-    public string VersionLabel => "v1.0.0";
+    public string VersionLabel => "v1.0.1";
 
     public bool IsInitialized
     {
