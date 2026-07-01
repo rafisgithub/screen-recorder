@@ -5,33 +5,88 @@ using ScreenRecorder.Core.Models;
 namespace ScreenRecorder.Infrastructure.Encoding;
 
 /// <summary>
-/// Probes the machine for available encoders and caches the result.
+/// Probes the machine for usable encoders via FFmpeg and caches the result.
+/// Hardware encoders (NVENC/Quick Sync/AMF) are confirmed by actually opening a
+/// small codec context — the only reliable test that the GPU/driver is present.
+/// Falls back to the guaranteed software encoders when FFmpeg is unavailable.
 /// </summary>
-/// <remarks>
-/// MILESTONE 2 — real detection. Today it returns the guaranteed software
-/// encoders only. The full implementation will query the GPU/FFmpeg for
-/// NVENC / Quick Sync / AMF availability and prepend the hardware encoders.
-/// </remarks>
+/// <remarks>MILESTONE 2 — hardware detection.</remarks>
 public sealed class HardwareCapabilityService : IHardwareCapabilityService
 {
+    private static readonly EncoderDescriptor[] HardwareCandidates =
+    {
+        EncoderDescriptor.H264Nvenc,
+        EncoderDescriptor.HevcNvenc,
+        EncoderDescriptor.H264Qsv,
+        EncoderDescriptor.HevcQsv,
+        EncoderDescriptor.H264Amf,
+        EncoderDescriptor.HevcAmf,
+    };
+
     private readonly ILogger<HardwareCapabilityService> _logger;
+    private readonly object _sync = new();
     private HardwareCapabilities? _cached;
 
     public HardwareCapabilityService(ILogger<HardwareCapabilityService> logger) => _logger = logger;
 
     public HardwareCapabilities Detect()
     {
-        if (_cached is not null)
+        lock (_sync)
         {
+            if (_cached is not null)
+            {
+                return _cached;
+            }
+
+            if (!FFmpegInterop.TryInitialize(_logger))
+            {
+                _logger.LogInformation("FFmpeg unavailable; reporting software encoders only.");
+                _cached = HardwareCapabilities.SoftwareOnly;
+                return _cached;
+            }
+
+            var encoders = new List<EncoderDescriptor>();
+            foreach (var candidate in HardwareCandidates)
+            {
+                if (FFmpegInterop.EncoderUsable(candidate.FFmpegEncoderName))
+                {
+                    encoders.Add(candidate);
+                    _logger.LogInformation("Hardware encoder available: {Encoder}.", candidate.DisplayName);
+                }
+            }
+
+            // Software encoders are the universal fallback; include them so the
+            // factory always has a software option for each codec.
+            AddIfCompiledIn(encoders, EncoderDescriptor.Libx264);
+            AddIfCompiledIn(encoders, EncoderDescriptor.Libx265);
+
+            if (encoders.Count == 0)
+            {
+                _logger.LogWarning("No encoders detected in this FFmpeg build; using software defaults.");
+                _cached = HardwareCapabilities.SoftwareOnly;
+                return _cached;
+            }
+
+            _cached = new HardwareCapabilities { VideoEncoders = encoders };
+            _logger.LogInformation(
+                "Encoder probe complete: {Count} encoder(s); hardware acceleration {State}.",
+                encoders.Count, _cached.HasHardwareEncoder ? "available" : "unavailable");
             return _cached;
         }
-
-        // TODO (Milestone 2): probe NVENC/QSV/AMF and merge with software encoders.
-        _logger.LogInformation("Hardware encoder probe not yet implemented; reporting software encoders only.");
-        _cached = HardwareCapabilities.SoftwareOnly;
-        return _cached;
     }
 
     public Task<HardwareCapabilities> DetectAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(Detect());
+        Task.Run(Detect, cancellationToken);
+
+    private void AddIfCompiledIn(List<EncoderDescriptor> encoders, EncoderDescriptor descriptor)
+    {
+        if (FFmpegInterop.EncoderCompiledIn(descriptor.FFmpegEncoderName))
+        {
+            encoders.Add(descriptor);
+        }
+        else
+        {
+            _logger.LogDebug("Software encoder {Encoder} is not compiled into this FFmpeg build.", descriptor.DisplayName);
+        }
+    }
 }

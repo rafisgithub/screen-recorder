@@ -1,40 +1,41 @@
 using Microsoft.Extensions.Logging;
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using ScreenRecorder.Core.Abstractions;
-using ScreenRecorder.Core.Models;
 
 namespace ScreenRecorder.Infrastructure.Audio;
 
 /// <summary>
-/// Captures system/desktop audio with WASAPI loopback (via NAudio's
-/// <c>WasapiLoopbackCapture</c>).
+/// Captures system/desktop audio with WASAPI loopback (NAudio's
+/// <see cref="WasapiLoopbackCapture"/>) on a render endpoint.
 /// </summary>
-/// <remarks>MILESTONE 4 — audio pipeline. Currently a scaffold stub.</remarks>
-public sealed class WasapiLoopbackCaptureService : ISystemAudioCaptureService
+/// <remarks>MILESTONE 4 — audio pipeline.</remarks>
+public sealed class WasapiLoopbackCaptureService : WasapiCaptureServiceBase, ISystemAudioCaptureService
 {
     private readonly ILogger<WasapiLoopbackCaptureService> _logger;
 
-    public WasapiLoopbackCaptureService(ILogger<WasapiLoopbackCaptureService> logger) => _logger = logger;
+    public WasapiLoopbackCaptureService(ILogger<WasapiLoopbackCaptureService> logger)
+        : base(logger) => _logger = logger;
 
-    public bool IsCapturing { get; private set; }
+    protected override string SourceName => "System audio";
 
-    public AudioFormat Format { get; private set; } = AudioFormat.Float32Stereo48k;
-
-#pragma warning disable CS0067 // Wired up in Milestone 4.
-    public event EventHandler<AudioFrame>? DataAvailable;
-    public event EventHandler<Exception>? CaptureFailed;
-#pragma warning restore CS0067
-
-    public Task StartAsync(string? deviceId, CancellationToken cancellationToken = default)
+    protected override IWaveIn CreateCapture(string? deviceId)
     {
-        _logger.LogWarning("WasapiLoopbackCaptureService.StartAsync invoked before Milestone 4 is implemented.");
-        throw new NotImplementedException("WASAPI loopback capture is implemented in Milestone 4.");
-    }
+        if (string.IsNullOrEmpty(deviceId))
+        {
+            return new WasapiLoopbackCapture();
+        }
 
-    public Task StopAsync()
-    {
-        IsCapturing = false;
-        return Task.CompletedTask;
+        try
+        {
+            using var enumerator = new MMDeviceEnumerator();
+            var device = enumerator.GetDevice(deviceId);
+            return new WasapiLoopbackCapture(device);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Render endpoint '{DeviceId}' unavailable; using the default playback device.", deviceId);
+            return new WasapiLoopbackCapture();
+        }
     }
-
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

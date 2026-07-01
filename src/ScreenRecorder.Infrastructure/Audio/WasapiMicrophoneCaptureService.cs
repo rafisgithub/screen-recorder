@@ -1,39 +1,43 @@
 using Microsoft.Extensions.Logging;
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using ScreenRecorder.Core.Abstractions;
-using ScreenRecorder.Core.Models;
 
 namespace ScreenRecorder.Infrastructure.Audio;
 
 /// <summary>
-/// Captures microphone audio with WASAPI (via NAudio's <c>WasapiCapture</c>).
+/// Captures microphone audio with WASAPI (NAudio's <see cref="WasapiCapture"/>)
+/// on a capture endpoint.
 /// </summary>
-/// <remarks>MILESTONE 4 — audio pipeline. Currently a scaffold stub.</remarks>
-public sealed class WasapiMicrophoneCaptureService : IMicrophoneCaptureService
+/// <remarks>MILESTONE 4 — audio pipeline.</remarks>
+public sealed class WasapiMicrophoneCaptureService : WasapiCaptureServiceBase, IMicrophoneCaptureService
 {
+    private const int BufferMilliseconds = 50;
+
     private readonly ILogger<WasapiMicrophoneCaptureService> _logger;
 
-    public WasapiMicrophoneCaptureService(ILogger<WasapiMicrophoneCaptureService> logger) => _logger = logger;
+    public WasapiMicrophoneCaptureService(ILogger<WasapiMicrophoneCaptureService> logger)
+        : base(logger) => _logger = logger;
 
-    public bool IsCapturing { get; private set; }
+    protected override string SourceName => "Microphone";
 
-    public AudioFormat Format { get; private set; } = AudioFormat.Float32Stereo48k;
-
-#pragma warning disable CS0067 // Wired up in Milestone 4.
-    public event EventHandler<AudioFrame>? DataAvailable;
-    public event EventHandler<Exception>? CaptureFailed;
-#pragma warning restore CS0067
-
-    public Task StartAsync(string? deviceId, CancellationToken cancellationToken = default)
+    protected override IWaveIn CreateCapture(string? deviceId)
     {
-        _logger.LogWarning("WasapiMicrophoneCaptureService.StartAsync invoked before Milestone 4 is implemented.");
-        throw new NotImplementedException("WASAPI microphone capture is implemented in Milestone 4.");
-    }
+        if (string.IsNullOrEmpty(deviceId))
+        {
+            return new WasapiCapture(WasapiCapture.GetDefaultCaptureDevice(), useEventSync: true, BufferMilliseconds);
+        }
 
-    public Task StopAsync()
-    {
-        IsCapturing = false;
-        return Task.CompletedTask;
+        try
+        {
+            using var enumerator = new MMDeviceEnumerator();
+            var device = enumerator.GetDevice(deviceId);
+            return new WasapiCapture(device, useEventSync: true, BufferMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Capture endpoint '{DeviceId}' unavailable; using the default microphone.", deviceId);
+            return new WasapiCapture(WasapiCapture.GetDefaultCaptureDevice(), useEventSync: true, BufferMilliseconds);
+        }
     }
-
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

@@ -52,7 +52,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- ----- Left: configuration ----- -->
+            <!-- Left: configuration -->
             <ScrollViewer Grid.Column="0" Margin="0,0,16,0"
                           VerticalScrollBarVisibility="Auto"
                           IsEnabled="{Binding Recording.IsIdle}">
@@ -212,7 +212,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- ----- Right: recorder ----- -->
+            <!-- Right: recorder -->
             <Border Grid.Column="1" Style="{StaticResource Card}" Margin="0">
                 <Grid>
                     <Grid.RowDefinitions>

@@ -1,3 +1,4 @@
+using System.IO;
 using FluentAssertions;
 using ScreenRecorder.Core.Models;
 using ScreenRecorder.Infrastructure.IO;
