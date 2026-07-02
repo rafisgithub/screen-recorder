@@ -7,11 +7,13 @@ follows a fairly standard fork-and-PR workflow.
 
 - Windows 10 build 19041+ or Windows 11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- FFmpeg shared libraries on `PATH` (or beside the built executable)
+- FFmpeg 7.x shared libraries — `.\tools\Get-FFmpeg.ps1` downloads them and
+  the build copies them beside the executable
 
 ```powershell
 git clone https://github.com/rafisgithub/screen-recorder.git
 cd screen-recorder
+.\tools\Get-FFmpeg.ps1
 dotnet restore
 dotnet build -c Release
 dotnet test

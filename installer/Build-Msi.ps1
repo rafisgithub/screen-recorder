@@ -21,9 +21,16 @@ if ($packageVersion -ne $Version) {
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
+Write-Host "Fetching FFmpeg runtime..." -ForegroundColor Cyan
+& "$RepoRoot\tools\Get-FFmpeg.ps1"
+
 Write-Host "Publishing win-x64..." -ForegroundColor Cyan
 dotnet publish "$RepoRoot\src\ScreenRecorder.App\ScreenRecorder.App.csproj" /p:PublishProfile=win-x64
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
+
+if (-not (Test-Path (Join-Path $PublishDir 'ffmpeg\avcodec-61.dll'))) {
+  throw "FFmpeg DLLs missing from publish output - the installed app would not be able to record."
+}
 
 Write-Host "Harvesting app files..." -ForegroundColor Cyan
 & "$PSScriptRoot\New-AppFilesWxs.ps1" -PublishDir $PublishDir
@@ -33,6 +40,7 @@ Write-Host "Building MSI..." -ForegroundColor Cyan
 wix build "$PSScriptRoot\Package.wxs" "$PSScriptRoot\AppFiles.generated.wxs" `
   -arch x64 `
   -ext WixToolset.UI.wixext `
+  -d "AppIconPath=$RepoRoot\src\ScreenRecorder.App\Assets\app.ico" `
   -out $MsiPath
 if ($LASTEXITCODE -ne 0) { throw "wix build failed" }
 

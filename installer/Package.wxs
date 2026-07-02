@@ -2,15 +2,23 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Screen Recorder"
            Manufacturer="Soft Standard"
-           Version="1.0.2"
+           Version="1.1.0"
            UpgradeCode="E7A3C1F2-4B5D-4E8A-9C0F-1D2E3F4A5B6C"
            Scope="perMachine"
            Compressed="true">
     <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." Schedule="afterInstallInitialize" />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLDIR" />
+
+    <!-- Apps & Features metadata -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.AppIconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/rafisgithub/screen-recorder" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/rafisgithub/screen-recorder/issues" />
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLDIR]" After="CostFinalize" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLDIR" Name="YouTubeScreenRecorder" />
+      <Directory Id="INSTALLDIR" Name="ScreenRecorder" />
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
       <Directory Id="AppMenuFolder" Name="Screen Recorder" />
@@ -18,9 +26,9 @@
     <ComponentGroup Id="StartMenuShortcut" Directory="AppMenuFolder">
       <Component Id="StartMenuSC" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
         <Shortcut Id="SC" Name="Screen Recorder"
-                  Target="[INSTALLDIR]YouTubeScreenRecorder.exe" WorkingDirectory="INSTALLDIR" />
+                  Target="[INSTALLDIR]ScreenRecorder.exe" WorkingDirectory="INSTALLDIR" />
         <RemoveFolder Id="RemoveMenu" On="uninstall" />
-        <RegistryValue Root="HKCU" Key="Software\SoftStandard\YouTubeScreenRecorder"
+        <RegistryValue Root="HKLM" Key="Software\SoftStandard\ScreenRecorder"
                        Name="sc" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </ComponentGroup>

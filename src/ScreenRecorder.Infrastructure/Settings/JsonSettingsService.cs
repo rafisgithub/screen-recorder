@@ -8,7 +8,7 @@ namespace ScreenRecorder.Infrastructure.Settings;
 
 /// <summary>
 /// Persists <see cref="RecordingSettings"/> as indented JSON under
-/// <c>%AppData%\YouTubeScreenRecorder\settings.json</c>. The file path is
+/// <c>%AppData%\ScreenRecorder\settings.json</c>. The file path is
 /// injectable so tests can point at a temp directory.
 /// </summary>
 public sealed class JsonSettingsService : ISettingsService
@@ -90,6 +90,6 @@ public sealed class JsonSettingsService : ISettingsService
 
     private static string GetDefaultSettingsPath() => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "YouTubeScreenRecorder",
+        "ScreenRecorder",
         "settings.json");
 }

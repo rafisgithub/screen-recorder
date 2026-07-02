@@ -53,11 +53,11 @@ which keeps the orchestration and view-model logic testable in isolation.
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design and the
 module-by-module implementation roadmap.
 
-## Prerequisites
+## Requirements
 
-- Windows 10 build 19041+ or Windows 11
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- FFmpeg shared libraries on the `PATH` (or beside the executable)
+- Windows 10 build 19041+ or Windows 11 (x64)
+
+That's it — the installer bundles the .NET runtime and FFmpeg.
 
 ## Install
 
@@ -65,7 +65,10 @@ module-by-module implementation roadmap.
 irm https://raw.githubusercontent.com/rafisgithub/screen-recorder/main/install.ps1 | iex
 ```
 
-Uninstall any time:
+The app installs for all users, so expect a User Account Control prompt.
+Re-running the command updates an existing install (it skips the download
+when you are already up to date). Uninstall any time — your recordings and
+settings are kept:
 
 ```powershell
 irm https://raw.githubusercontent.com/rafisgithub/screen-recorder/main/uninstall.ps1 | iex
@@ -73,9 +76,12 @@ irm https://raw.githubusercontent.com/rafisgithub/screen-recorder/main/uninstall
 
 Prefer to do it by hand? Grab the MSI from the [latest release](https://github.com/rafisgithub/screen-recorder/releases/latest) and run it.
 
-## Build & run
+## Build & run from source
+
+Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ```powershell
+.\tools\Get-FFmpeg.ps1   # one-time: fetch FFmpeg native DLLs
 dotnet restore
 dotnet build -c Release
 dotnet run --project src/ScreenRecorder.App
@@ -101,6 +107,11 @@ rather than opening a public issue.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Note that FFmpeg is a separate runtime
-dependency distributed under its own license (LGPL or GPL, depending on the
-build you install); this project does not bundle or statically link it.
+The project's own code is MIT — see [LICENSE](LICENSE).
+
+The installer bundles the [BtbN GPL shared build](https://github.com/BtbN/FFmpeg-Builds)
+of FFmpeg (GPL because it includes the libx264/libx265 software encoders used
+as the fallback when no hardware encoder is available). FFmpeg's license text
+is installed alongside the DLLs, and the installed bundle as a whole is
+therefore distributed under the terms of the GPL; the MIT-licensed
+application source remains freely available in this repository.

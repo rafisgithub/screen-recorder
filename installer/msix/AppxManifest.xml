@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX manifest for Microsoft Store distribution.
+
+  Identity Name/Publisher are placeholders. After reserving the app name in
+  Partner Center, copy the real values from "Product management > Product
+  identity" (Package/Identity/Name and Package/Identity/Publisher) and either
+  update this file or pass them to Build-Msix.ps1 via -IdentityName/-Publisher
+  (or the MSIX_IDENTITY_NAME / MSIX_PUBLISHER environment variables).
+
+  The package is uploaded to the Store unsigned; the Store signs it on
+  ingestion. Identity Version is stamped by Build-Msix.ps1.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity Name="SoftStandard.ScreenRecorder"
+            Publisher="CN=SoftStandard"
+            Version="1.0.0.0"
+            ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Screen Recorder</DisplayName>
+    <PublisherDisplayName>Soft Standard</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop"
+                        MinVersion="10.0.19041.0"
+                        MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="ScreenRecorder"
+                 Executable="ScreenRecorder.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Screen Recorder"
+        Description="Record your screen with system audio and microphone narration."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Restricted capability: required for packaged Win32 (Desktop Bridge)
+         apps. Justify in Partner Center as "classic desktop application". -->
+    <rescap:Capability Name="runFullTrust" />
+    <!-- Surfaces the app in Settings > Privacy > Microphone so users can
+         grant consent for microphone narration capture. -->
+    <DeviceCapability Name="microphone" />
+  </Capabilities>
+
+</Package>

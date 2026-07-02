@@ -11,9 +11,9 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <RootNamespace>ScreenRecorder.App</RootNamespace>
-    <AssemblyName>YouTubeScreenRecorder</AssemblyName>
+    <AssemblyName>ScreenRecorder</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon></ApplicationIcon>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +27,31 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
+
+  <!--
+    FFmpeg native DLLs are not a NuGet dependency (licensing); tools\Get-FFmpeg.ps1
+    downloads them into <repo>\ffmpeg\. Copy them beside the executable, where
+    FFmpegInterop.ResolveRootPath() looks first. Items are declared inside the
+    targets so the glob is evaluated after the script has run, not at project load.
+  -->
+  <Target Name="CopyFFmpegNativeOnBuild" AfterTargets="Build">
+    <ItemGroup>
+      <FFmpegNative Include="$(MSBuildThisFileDirectory)..\..\ffmpeg\*.dll;$(MSBuildThisFileDirectory)..\..\ffmpeg\*.txt" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FFmpegNative)" DestinationFolder="$(OutDir)ffmpeg" SkipUnchangedFiles="true"
+          Condition="'@(FFmpegNative)' != ''" />
+    <Warning Text="FFmpeg native DLLs not found — run tools\Get-FFmpeg.ps1 or recording will be unavailable."
+             Condition="'@(FFmpegNative)' == ''" />
+  </Target>
+
+  <Target Name="CopyFFmpegNativeOnPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <FFmpegNativePub Include="$(MSBuildThisFileDirectory)..\..\ffmpeg\*.dll;$(MSBuildThisFileDirectory)..\..\ffmpeg\*.txt" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FFmpegNativePub)" DestinationFolder="$(PublishDir)ffmpeg" SkipUnchangedFiles="true"
+          Condition="'@(FFmpegNativePub)' != ''" />
+    <Error Text="FFmpeg native DLLs not found — run tools\Get-FFmpeg.ps1 before publishing; the installed app cannot record without them."
+           Condition="'@(FFmpegNativePub)' == ''" />
+  </Target>
 
 </Project>

@@ -42,13 +42,31 @@ jobs:
       - name: Restore
         run: dotnet restore ScreenRecorder.sln
 
+      - name: Fetch FFmpeg native libraries
+        shell: pwsh
+        run: ./tools/Get-FFmpeg.ps1
+
       - name: Build MSI
         shell: pwsh
         run: ./installer/Build-Msi.ps1 -Version "${{ steps.version.outputs.version }}"
+
+      # Store-submission artifact: unsigned, uploaded to Partner Center which
+      # signs it. Identity overrides come from repo variables once the app
+      # name is reserved (see installer/msix/README.md); the manifest
+      # placeholders are used when the variables are unset.
+      - name: Build MSIX
+        shell: pwsh
+        env:
+          MSIX_IDENTITY_NAME: ${{ vars.MSIX_IDENTITY_NAME }}
+          MSIX_PUBLISHER: ${{ vars.MSIX_PUBLISHER }}
+          MSIX_PUBLISHER_DISPLAY_NAME: ${{ vars.MSIX_PUBLISHER_DISPLAY_NAME }}
+        run: ./installer/Build-Msix.ps1 -Version "${{ steps.version.outputs.version }}" -SkipPublish
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          files: installer/bin/ScreenRecorderSetup-x64.msi
+          files: |
+            installer/bin/ScreenRecorderSetup-x64.msi
+            installer/bin/ScreenRecorder-x64.msix
           generate_release_notes: true

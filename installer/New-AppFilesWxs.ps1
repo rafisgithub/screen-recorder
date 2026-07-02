@@ -1,7 +1,7 @@
 # Harvests every file under the win-x64 publish output into a WiX
 # ComponentGroup, mirroring the folder layout (locale subfolders etc.)
 # under INSTALLDIR. Regenerate after every `dotnet publish` before
-# building the MSI — this file is gitignored and not checked in.
+# building the MSI - this file is gitignored and not checked in.
 #
 #   pwsh ./installer/New-AppFilesWxs.ps1 -PublishDir ..\publish\win-x64
 param(

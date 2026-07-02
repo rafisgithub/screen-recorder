@@ -22,9 +22,11 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        MigrateLegacyAppData();
+
         var logDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "YouTubeScreenRecorder",
+            "ScreenRecorder",
             "logs");
         Directory.CreateDirectory(logDirectory);
 
@@ -84,5 +86,33 @@ public partial class App : Application
         Log.Error(e.Exception, "Unhandled UI exception");
         MessageBox.Show(e.Exception.Message, "Unexpected error", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
+    }
+
+    /// <summary>
+    /// Versions before 1.1.0 stored settings and logs under "YouTubeScreenRecorder";
+    /// move them to the new "ScreenRecorder" folders once so upgrades keep user data.
+    /// </summary>
+    private static void MigrateLegacyAppData()
+    {
+        foreach (var root in new[]
+                 {
+                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                 })
+        {
+            try
+            {
+                var legacy = Path.Combine(root, "YouTubeScreenRecorder");
+                var current = Path.Combine(root, "ScreenRecorder");
+                if (Directory.Exists(legacy) && !Directory.Exists(current))
+                {
+                    Directory.Move(legacy, current);
+                }
+            }
+            catch (Exception)
+            {
+                // Migration is best-effort; the app falls back to defaults.
+            }
+        }
     }
 }
