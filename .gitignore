@@ -35,6 +35,11 @@ recordings/
 logs/
 *.log
 
+# Installer
+publish/
+installer/bin/
+installer/AppFiles.generated.wxs
+
 # OS
 Thumbs.db
 desktop.ini
