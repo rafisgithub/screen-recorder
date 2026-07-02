@@ -37,7 +37,7 @@ jobs:
       - name: Install WiX
         run: |
           dotnet tool install --global wix --version 4.0.5
-          wix extension add WixToolset.UI.wixext
+          wix extension add -g WixToolset.UI.wixext/4.0.5
 
       - name: Restore
         run: dotnet restore ScreenRecorder.sln
