@@ -54,12 +54,12 @@ jobs:
           </html>
           HTML
 
+      # Requires a one-time repo setting: Settings > Pages > Build and
+      # deployment > Source = "GitHub Actions". The built-in GITHUB_TOKEN
+      # cannot create the Pages site itself, so this must be enabled once by
+      # hand; after that every push here deploys automatically.
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          # Enable Pages (GitHub Actions source) on first run so no manual
-          # repo-settings toggle is needed; uses the workflow's pages token.
-          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
