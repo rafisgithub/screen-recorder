@@ -17,14 +17,14 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="SoftStandard.ScreenRecorder"
-            Publisher="CN=SoftStandard"
+  <Identity Name="ScreenRecorder.App"
+            Publisher="CN=ScreenRecorder"
             Version="1.0.0.0"
             ProcessorArchitecture="x64" />
 
   <Properties>
     <DisplayName>Screen Recorder</DisplayName>
-    <PublisherDisplayName>Soft Standard</PublisherDisplayName>
+    <PublisherDisplayName>Screen Recorder</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

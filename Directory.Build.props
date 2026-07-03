@@ -11,7 +11,7 @@
     <!-- Missing XML comment warnings are noisy during scaffolding. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Product>Screen Recorder</Product>
-    <Company>SoftStandard</Company>
+    <Company>Screen Recorder</Company>
     <Version>1.1.0</Version>
     <Copyright>Copyright © 2026</Copyright>
   </PropertyGroup>

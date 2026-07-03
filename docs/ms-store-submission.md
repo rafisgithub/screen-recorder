@@ -19,7 +19,7 @@ The release workflow already produces both artifacts a submission can use:
    https://partner.microsoft.com/dashboard (one-time registration fee;
    individual or company; company accounts go through verification).
 2. **Reserve the app name** ("Screen Recorder" may be taken — have
-   alternatives ready, e.g. "Soft Standard Screen Recorder").
+   alternatives ready, e.g. "Screen Recorder Studio").
 3. **Copy the product identity** from Product management → Product identity
    into the repository variables `MSIX_IDENTITY_NAME`, `MSIX_PUBLISHER`,
    and `MSIX_PUBLISHER_DISPLAY_NAME` so releases stamp the real identity
