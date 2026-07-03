@@ -1,0 +1,67 @@
+name: Pages
+
+# Publishes the privacy policy to GitHub Pages so the Microsoft Store
+# submission has a stable privacy-policy URL:
+#   https://rafisgithub.github.io/screen-recorder/privacy-policy.html
+# Only the curated files below are published — the source tree is not served.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "privacy-policy.html"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Allow one concurrent deployment; newer pushes cancel in-flight runs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage site
+        run: |
+          mkdir -p _site
+          cp privacy-policy.html _site/privacy-policy.html
+          # Root URL redirects to the privacy policy so both paths resolve.
+          cat > _site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=./privacy-policy.html">
+            <link rel="canonical" href="./privacy-policy.html">
+            <title>Screen Recorder</title>
+          </head>
+          <body>
+            <p>Redirecting to the <a href="./privacy-policy.html">Screen Recorder privacy policy</a>&hellip;</p>
+          </body>
+          </html>
+          HTML
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

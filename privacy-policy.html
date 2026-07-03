@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Screen Recorder</title>
+  <meta name="description" content="Privacy Policy for the Screen Recorder desktop application by Soft Standard. Recordings stay on your device; nothing is transmitted.">
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --text: #e6e8ec;
+      --muted: #9aa2ad;
+      --accent: #4f8cff;
+      --border: #262b34;
+      --maxw: 780px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 0 20px;
+    }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 56px 0 80px; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 28px;
+      margin-bottom: 8px;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0 0 10px;
+    }
+    h1 { font-size: 30px; line-height: 1.2; margin: 0 0 12px; }
+    .meta { color: var(--muted); font-size: 14px; margin: 0; }
+    .meta strong { color: var(--text); font-weight: 600; }
+    .tldr {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 32px 0;
+    }
+    .tldr p { margin: 0; }
+    h2 {
+      font-size: 20px;
+      margin: 40px 0 12px;
+      padding-top: 8px;
+    }
+    h3 { font-size: 16px; margin: 24px 0 8px; }
+    p { margin: 0 0 14px; }
+    ul { margin: 0 0 14px; padding-left: 22px; }
+    li { margin: 0 0 8px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      background: #0b0d11;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 6px;
+      font: 13px/1.5 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: #d7e3ff;
+      word-break: break-word;
+    }
+    .muted { color: var(--muted); }
+    footer {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: underline; }
+    @media (max-width: 520px) {
+      .wrap { padding: 36px 0 56px; }
+      h1 { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Privacy Policy</p>
+      <h1>Screen Recorder</h1>
+      <p class="meta">
+        Published by <strong>Soft Standard</strong> &middot;
+        Effective <strong>3 July 2026</strong> &middot;
+        Applies to all versions of the Screen Recorder desktop application for Windows.
+      </p>
+    </header>
+
+    <div class="tldr">
+      <p><strong>The short version:</strong> Screen Recorder runs entirely on your
+      computer. Your recordings, audio, settings, and logs are stored locally on
+      your own device. The application does not create an account, does not use
+      analytics or telemetry, and does not send your recordings or any personal
+      data to us or to any third party.</p>
+    </div>
+
+    <h2>1. Who we are</h2>
+    <p>Screen Recorder is a Windows desktop application developed and published by
+    <strong>Soft Standard</strong> ("we", "us", "our"). It captures your screen,
+    system audio, and microphone and encodes them into a standard MP4 video file
+    saved on your computer. This policy explains what the application does and does
+    not do with your information.</p>
+
+    <h2>2. Information the application handles</h2>
+    <p>To do its job, Screen Recorder works with the following data, all of which
+    stays on your device:</p>
+    <ul>
+      <li><strong>Screen content</strong> — the monitor or window you choose to
+      record is captured as video frames while a recording is active.</li>
+      <li><strong>System (loopback) audio</strong> — the sound playing on your
+      computer, if you enable it for the recording.</li>
+      <li><strong>Microphone audio</strong> — captured only if you enable microphone
+      recording and grant Windows microphone permission.</li>
+      <li><strong>Application settings</strong> — your preferences such as output
+      folder, resolution, frame rate, encoder, and selected audio devices.</li>
+      <li><strong>Diagnostic logs</strong> — local text logs recording the
+      application's own activity (e.g. which devices were used and any errors), to
+      help you troubleshoot problems. These are technical logs, not a record of what
+      you recorded.</li>
+    </ul>
+    <p>We do not collect names, email addresses, contacts, location data, browsing
+    history, or any advertising identifiers. The application has no login and no
+    user profile.</p>
+
+    <h2>3. Where your data is stored</h2>
+    <p>Everything the application produces is written to your local computer only:</p>
+    <ul>
+      <li><strong>Recordings (MP4 files)</strong> — saved to the output folder you
+      choose. By default this is your Windows <code>Videos</code> folder.</li>
+      <li><strong>Settings</strong> — stored in
+      <code>%AppData%\ScreenRecorder\settings.json</code>.</li>
+      <li><strong>Logs</strong> — stored in
+      <code>%LocalAppData%\ScreenRecorder\logs\</code>, with old log files rotated
+      out automatically.</li>
+    </ul>
+    <p>You are in full control of these files. You can move, back up, or delete your
+    recordings, settings, and logs at any time using Windows.</p>
+
+    <h2>4. What we do not do</h2>
+    <ul>
+      <li>We do <strong>not</strong> transmit your recordings, audio, or screen
+      content off your device.</li>
+      <li>We do <strong>not</strong> use analytics, tracking, telemetry, or
+      advertising SDKs.</li>
+      <li>We do <strong>not</strong> require an account, and we do not collect or
+      store personal information on our servers &mdash; we operate no such server for
+      the application.</li>
+      <li>We do <strong>not</strong> sell or share your data with anyone.</li>
+    </ul>
+
+    <h2>5. Permissions the application uses</h2>
+    <p>Windows may ask you to grant the following, and each is used solely to
+    provide the recording feature you requested:</p>
+    <ul>
+      <li><strong>Graphics / screen capture</strong> — to record the monitor or
+      window you select.</li>
+      <li><strong>Microphone</strong> — to record microphone audio, only when you
+      turn that option on.</li>
+      <li><strong>File system access</strong> — to save recordings, settings, and
+      logs to the locations described above.</li>
+    </ul>
+    <p>You can review or revoke microphone access at any time in
+    <em>Windows Settings &rsaquo; Privacy &amp; security &rsaquo; Microphone</em>.</p>
+
+    <h2>6. Network use</h2>
+    <p>The Screen Recorder application itself does not require or use an internet
+    connection to record. It functions fully offline.</p>
+    <p>The only network activity associated with the project happens <em>outside</em>
+    the application, during installation or updates: our optional install/update
+    script and the Microsoft Store download the application package from their
+    respective distribution servers (for example, GitHub Releases or the Microsoft
+    Store). These transfers deliver software to you and are governed by the privacy
+    practices of those platforms. The application does not phone home after it is
+    installed.</p>
+
+    <h2>7. Third-party components</h2>
+    <p>Screen Recorder bundles <strong>FFmpeg</strong> to encode and package your
+    video. FFmpeg runs locally on your machine as part of the recording pipeline and
+    does not transmit data. Its license text is included with the installed
+    application.</p>
+    <p>If you obtain Screen Recorder through the Microsoft Store, the Store's own
+    <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">privacy statement</a>
+    covers the download, licensing, and update process that Microsoft performs.</p>
+
+    <h2>8. Children's privacy</h2>
+    <p>Screen Recorder is a general-purpose utility and is not directed at children.
+    Because it does not collect any personal information, it does not knowingly
+    collect information from children.</p>
+
+    <h2>9. Data security</h2>
+    <p>Because your data never leaves your computer, its security is tied to the
+    security of your own device and Windows user account. We recommend keeping
+    Windows up to date and protecting your device with a password or other login.</p>
+
+    <h2>10. Your choices and control</h2>
+    <p>Since all data is local, you retain complete control. You can delete any
+    recording, clear the settings file, or remove the log folder at any time.
+    Uninstalling the application removes the program; you may separately delete your
+    recordings and configuration if you wish to remove them as well.</p>
+
+    <h2>11. Changes to this policy</h2>
+    <p>We may update this policy to reflect changes in the application or for legal
+    and regulatory reasons. When we do, we will revise the "Effective" date above
+    and publish the updated policy at this page. Continued use of the application
+    after an update constitutes acceptance of the revised policy.</p>
+
+    <h2>12. Contact us</h2>
+    <p>Questions about this privacy policy or the application's data practices?
+    Contact us at
+    <a href="mailto:robert.collins@softstandard.com">robert.collins@softstandard.com</a>,
+    or open an issue on our
+    <a href="https://github.com/rafisgithub/screen-recorder" target="_blank" rel="noopener">GitHub repository</a>.</p>
+
+    <footer>
+      <p>&copy; 2026 Soft Standard. Screen Recorder application source is available
+      under the MIT License; the bundled FFmpeg build is distributed under the GPL.
+      This document describes the privacy practices of the Screen Recorder desktop
+      application for Windows.</p>
+    </footer>
+  </div>
+</body>
+</html>
