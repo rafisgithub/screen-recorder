@@ -105,8 +105,12 @@ public sealed unsafe class FFmpegVideoEncoder : IVideoEncoder, IFFmpegEncoderCon
 
             if (plan.GlobalQuality.HasValue)
             {
+                // QSV ICQ: global_quality carries the ICQ quality target directly.
+                // The AV_CODEC_FLAG_QSCALE flag must NOT be set here — it would switch
+                // the encoder to fixed-QP and reinterpret this value in lambda units
+                // (÷ FF_QP2LAMBDA ≈ 118), collapsing quality 21 to QP 0 (near-lossless,
+                // enormous files).
                 _ctx->global_quality = plan.GlobalQuality.Value;
-                _ctx->flags |= ffmpeg.AV_CODEC_FLAG_QSCALE;
             }
 
             // MP4 always wants the codec's parameter sets in the container header.
@@ -124,12 +128,22 @@ public sealed unsafe class FFmpegVideoEncoder : IVideoEncoder, IFFmpegEncoderCon
             FFmpegInterop.ThrowIfError(ffmpeg.avcodec_open2(_ctx, codec, null), $"Opening encoder '{Descriptor.FFmpegEncoderName}'");
 
             _frame = ffmpeg.av_frame_alloc();
+            if (_frame == null)
+            {
+                throw new InvalidOperationException("av_frame_alloc failed for the video encoder.");
+            }
+
             _frame->format = (int)_pixelFormat;
             _frame->width = _outputWidth;
             _frame->height = _outputHeight;
             FFmpegInterop.ThrowIfError(ffmpeg.av_frame_get_buffer(_frame, 0), "Allocating the encoder frame buffer");
 
             _pkt = ffmpeg.av_packet_alloc();
+            if (_pkt == null)
+            {
+                throw new InvalidOperationException("av_packet_alloc failed for the video encoder.");
+            }
+
             CreateScaler();
 
             _initialized = true;

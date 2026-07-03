@@ -63,7 +63,10 @@ public sealed unsafe class FFmpegAudioEncoder : IAudioEncoder, IFFmpegEncoderCon
                 throw new InvalidOperationException("The AAC encoder is not available in this FFmpeg build.");
             }
 
-            _channels = settings.Channels > 0 ? settings.Channels : 2;
+            // Clamp to [1, 8]: the planar deinterleave writes to _frame->data[c], and
+            // FFmpeg only exposes the first 8 planes there (9+ live in extended_data),
+            // so more than 8 channels would index past the pointer array.
+            _channels = Math.Clamp(settings.Channels > 0 ? settings.Channels : 2, 1, 8);
             _sampleRate = settings.SampleRate > 0 ? settings.SampleRate : 48_000;
 
             _ctx = ffmpeg.avcodec_alloc_context3(codec);
@@ -88,6 +91,11 @@ public sealed unsafe class FFmpegAudioEncoder : IAudioEncoder, IFFmpegEncoderCon
             _frameSize = _ctx->frame_size > 0 ? _ctx->frame_size : 1024;
 
             _frame = ffmpeg.av_frame_alloc();
+            if (_frame == null)
+            {
+                throw new InvalidOperationException("av_frame_alloc failed for the AAC encoder.");
+            }
+
             _frame->format = (int)AVSampleFormat.AV_SAMPLE_FMT_FLTP;
             _frame->sample_rate = _sampleRate;
             _frame->nb_samples = _frameSize;
@@ -95,6 +103,10 @@ public sealed unsafe class FFmpegAudioEncoder : IAudioEncoder, IFFmpegEncoderCon
             FFmpegInterop.ThrowIfError(ffmpeg.av_frame_get_buffer(_frame, 0), "Allocating the audio frame buffer");
 
             _pkt = ffmpeg.av_packet_alloc();
+            if (_pkt == null)
+            {
+                throw new InvalidOperationException("av_packet_alloc failed for the AAC encoder.");
+            }
 
             _initialized = true;
             _logger.LogInformation(

@@ -65,7 +65,11 @@ public sealed class CaptureTargetProvider : ICaptureTargetProvider
     public IReadOnlyList<CaptureTarget> GetWindows()
     {
         var windows = new List<CaptureTarget>();
-        IntPtr self = Process.GetCurrentProcess().MainWindowHandle;
+        IntPtr self;
+        using (var current = Process.GetCurrentProcess())
+        {
+            self = current.MainWindowHandle;
+        }
 
         bool Callback(IntPtr hWnd, IntPtr param)
         {
@@ -154,7 +158,12 @@ public sealed class CaptureTargetProvider : ICaptureTargetProvider
 
     private static IntPtr GetOwnerWindow()
     {
-        var main = Process.GetCurrentProcess().MainWindowHandle;
+        IntPtr main;
+        using (var current = Process.GetCurrentProcess())
+        {
+            main = current.MainWindowHandle;
+        }
+
         return main != IntPtr.Zero ? main : Win32Display.GetForegroundWindow();
     }
 

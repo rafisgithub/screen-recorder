@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using ScreenRecorder.Core.Abstractions;
 
@@ -28,7 +29,7 @@ public sealed class MainViewModel : ViewModelBase
 
     public string Title => "Screen Recorder";
 
-    public string VersionLabel => "v1.0.1";
+    public string VersionLabel { get; } = BuildVersionLabel();
 
     public bool IsInitialized
     {
@@ -50,5 +51,22 @@ public sealed class MainViewModel : ViewModelBase
         {
             _logger.LogError(ex, "Initialization failed");
         }
+    }
+
+    private static string BuildVersionLabel()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? assembly.GetName().Version?.ToString()
+            ?? "1.0.0";
+
+        // Drop any source-revision metadata (e.g. "1.1.0+abc1234").
+        int plus = version.IndexOf('+', StringComparison.Ordinal);
+        if (plus >= 0)
+        {
+            version = version[..plus];
+        }
+
+        return "v" + version;
     }
 }

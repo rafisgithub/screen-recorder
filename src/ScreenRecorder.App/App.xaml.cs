@@ -22,16 +22,20 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        MigrateLegacyAppData();
-
-        var logDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "ScreenRecorder",
-            "logs");
-        Directory.CreateDirectory(logDirectory);
+        // Hook the last-resort handler before any startup work so an early failure
+        // still surfaces a dialog instead of silently killing the process.
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
 
         try
         {
+            MigrateLegacyAppData();
+
+            var logDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ScreenRecorder",
+                "logs");
+            Directory.CreateDirectory(logDirectory);
+
             _host = Host.CreateDefaultBuilder()
                 .UseSerilog((_, configuration) => configuration
                     .MinimumLevel.Information()
@@ -50,8 +54,6 @@ public partial class App : Application
                 .Build();
 
             await _host.StartAsync();
-
-            DispatcherUnhandledException += OnDispatcherUnhandledException;
 
             var window = _host.Services.GetRequiredService<MainWindow>();
             var viewModel = _host.Services.GetRequiredService<MainViewModel>();

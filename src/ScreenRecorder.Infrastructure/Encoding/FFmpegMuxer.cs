@@ -29,12 +29,22 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
     private AVRational _audioSourceTimeBase;
     private int _audioSampleRate;
     private bool _headerWritten;
-    private bool _closed;
+    private bool _faulted;
     private bool _disposed;
 
     public FFmpegMuxer(ILogger<FFmpegMuxer> logger) => _logger = logger;
 
     public bool HasAudio { get; private set; }
+
+    /// <summary>
+    /// True when a packet write or the trailer failed since the last <see cref="OpenAsync"/>.
+    /// The output MP4 is then incomplete/unplayable, so the orchestrator reports the
+    /// recording as failed rather than saved.
+    /// </summary>
+    public bool Faulted
+    {
+        get { lock (_sync) { return _faulted; } }
+    }
 
     /// <summary>
     /// Binds the opened encoder codec contexts so their parameters (incl. extradata)
@@ -63,6 +73,8 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
             {
                 throw new InvalidOperationException("The muxer is already open.");
             }
+
+            _faulted = false;
 
             if (!FFmpegInterop.TryInitialize(_logger))
             {
@@ -122,6 +134,11 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
             FFmpegInterop.ThrowIfError(header, "avformat_write_header");
 
             _packet = ffmpeg.av_packet_alloc();
+            if (_packet == null)
+            {
+                throw new InvalidOperationException("av_packet_alloc failed for the muxer.");
+            }
+
             _headerWritten = true;
 
             _logger.LogInformation(
@@ -171,39 +188,33 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
                 return ValueTask.CompletedTask;
             }
 
+            // CloseLocked frees the packet and format context and resets state,
+            // so there is nothing left to release here.
             CloseLocked();
             _disposed = true;
-
-            if (_packet != null)
-            {
-                AVPacket* pkt = _packet;
-                ffmpeg.av_packet_free(&pkt);
-                _packet = null;
-            }
-
-            if (_oc != null)
-            {
-                ffmpeg.avformat_free_context(_oc);
-                _oc = null;
-            }
         }
 
         return ValueTask.CompletedTask;
     }
 
+    /// <summary>
+    /// Finalizes the current output and resets all per-recording state so the
+    /// (singleton) muxer can be reopened for the next recording. Safe to call more
+    /// than once — a no-op once the format context has been released.
+    /// </summary>
     private void CloseLocked()
     {
-        if (_oc == null || _closed)
+        if (_oc == null)
         {
             return;
         }
 
-        _closed = true;
         if (_headerWritten)
         {
             int trailer = ffmpeg.av_write_trailer(_oc);
             if (trailer < 0)
             {
+                _faulted = true;
                 _logger.LogWarning("av_write_trailer failed: {Error}", FFmpegInterop.ErrorToString(trailer));
             }
         }
@@ -212,6 +223,26 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
         {
             ffmpeg.avio_closep(&_oc->pb);
         }
+
+        if (_packet != null)
+        {
+            AVPacket* pkt = _packet;
+            ffmpeg.av_packet_free(&pkt);
+            _packet = null;
+        }
+
+        ffmpeg.avformat_free_context(_oc);
+        _oc = null;
+
+        // The stream/codec-context pointers are owned elsewhere (streams by _oc,
+        // just freed; codec contexts by the encoders). Drop the borrowed handles
+        // so a subsequent OpenAsync starts clean.
+        _videoStream = null;
+        _audioStream = null;
+        _videoCtx = null;
+        _audioCtx = null;
+        _headerWritten = false;
+        HasAudio = false;
     }
 
     private void WritePacket(ReadOnlySpan<byte> data, AVStream* stream, AVRational sourceTimeBase, long pts, long dts, bool isKeyframe)
@@ -223,7 +254,7 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
 
         lock (_sync)
         {
-            if (!_headerWritten || _closed || _disposed || stream == null || _packet == null)
+            if (!_headerWritten || _disposed || _oc == null || stream == null || _packet == null)
             {
                 return;
             }
@@ -241,6 +272,7 @@ public sealed unsafe class FFmpegMuxer : IMediaWriter
                 int write = ffmpeg.av_interleaved_write_frame(_oc, _packet);
                 if (write < 0)
                 {
+                    _faulted = true;
                     _logger.LogWarning("av_interleaved_write_frame failed: {Error}", FFmpegInterop.ErrorToString(write));
                 }
             }

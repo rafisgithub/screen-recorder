@@ -99,6 +99,23 @@ public abstract class WasapiCaptureServiceBase : IAudioCaptureService
             // driver can't hang shutdown.
             await Task.WhenAny(stopped, Task.Delay(TimeSpan.FromSeconds(2))).ConfigureAwait(false);
         }
+
+        // Dispose the stopped NAudio capture so a subsequent StartAsync creates a
+        // fresh one instead of overwriting (and leaking) this instance. Guard against
+        // a concurrent restart having already replaced it.
+        lock (_sync)
+        {
+            if (!ReferenceEquals(_capture, capture))
+            {
+                return;
+            }
+
+            capture.DataAvailable -= OnDataAvailable;
+            capture.RecordingStopped -= OnRecordingStopped;
+            _capture = null;
+        }
+
+        capture.Dispose();
     }
 
     public async ValueTask DisposeAsync()

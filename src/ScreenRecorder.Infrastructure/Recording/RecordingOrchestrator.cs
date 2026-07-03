@@ -36,6 +36,12 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
     private readonly object _lifecycle = new();
     private readonly RecordingClock _recordingClock;
 
+    // Teardown can be triggered by StopAsync, a background failure, or Dispose; the
+    // gate + flag guarantee it runs exactly once per session so flush/close/dispose
+    // can never interleave (which would corrupt the trailer or double-free).
+    private readonly SemaphoreSlim _teardownGate = new(1, 1);
+    private bool _tornDown;
+
     private IVideoEncoder? _videoEncoder;
     private IAudioEncoder? _audioEncoder;
     private MixingSampleProvider? _mixer;
@@ -108,6 +114,8 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
 
         try
         {
+            _tornDown = false;
+
             var capabilities = _capabilities.Detect();
             var descriptor = _encoderFactory.SelectVideoEncoder(settings.Video, capabilities);
             _outputFile = _outputPath.BuildOutputPath(settings);
@@ -170,28 +178,42 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
         }
     }
 
-    public async Task PauseAsync()
+    public Task PauseAsync()
     {
-        if (State != RecordingState.Recording)
+        RecordingStateChangedEventArgs? change = null;
+        lock (_lifecycle)
         {
-            return;
+            if (State != RecordingState.Recording)
+            {
+                return Task.CompletedTask;
+            }
+
+            _recordingClock.Pause();
+            change = new RecordingStateChangedEventArgs(State, RecordingState.Paused, null);
+            State = RecordingState.Paused;
         }
 
-        _recordingClock.Pause();
-        SetState(RecordingState.Paused);
-        await Task.CompletedTask.ConfigureAwait(false);
+        StateChanged?.Invoke(this, change);
+        return Task.CompletedTask;
     }
 
-    public async Task ResumeAsync()
+    public Task ResumeAsync()
     {
-        if (State != RecordingState.Paused)
+        RecordingStateChangedEventArgs? change = null;
+        lock (_lifecycle)
         {
-            return;
+            if (State != RecordingState.Paused)
+            {
+                return Task.CompletedTask;
+            }
+
+            _recordingClock.Resume();
+            change = new RecordingStateChangedEventArgs(State, RecordingState.Recording, null);
+            State = RecordingState.Recording;
         }
 
-        _recordingClock.Resume();
-        SetState(RecordingState.Recording);
-        await Task.CompletedTask.ConfigureAwait(false);
+        StateChanged?.Invoke(this, change);
+        return Task.CompletedTask;
     }
 
     public async Task<string?> StopAsync()
@@ -210,6 +232,18 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
         {
             await SafeTeardownAsync().ConfigureAwait(false);
             UpdateStatistics();
+
+            // A muxer fault (failed packet write or trailer) means the MP4 is
+            // incomplete/unplayable — report failure instead of a bogus save.
+            if (_mediaWriter is FFmpegMuxer { Faulted: true })
+            {
+                var muxError = new InvalidOperationException(
+                    "The recording could not be finalized; the output file may be incomplete.");
+                _logger.LogError(muxError, "Muxer reported a write failure while finalizing {Output}.", _outputFile);
+                SetState(RecordingState.Error, muxError);
+                return null;
+            }
+
             SetState(RecordingState.Idle);
             _logger.LogInformation("Recording saved to {Output}.", _outputFile);
             return string.IsNullOrEmpty(_outputFile) ? null : _outputFile;
@@ -486,6 +520,25 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
 
     private async Task SafeTeardownAsync()
     {
+        await _teardownGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (_tornDown)
+            {
+                return;
+            }
+
+            _tornDown = true;
+            await TeardownCoreAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            _teardownGate.Release();
+        }
+    }
+
+    private async Task TeardownCoreAsync()
+    {
         _running = false;
         _recordingClock.Stop();
 
@@ -599,12 +652,16 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
 
     private void FailRecording(Exception ex, string stage)
     {
-        if (!_running)
+        lock (_lifecycle)
         {
-            return;
+            if (!_running)
+            {
+                return;
+            }
+
+            _running = false;
         }
 
-        _running = false;
         _logger.LogError(ex, "Recording failed during {Stage}.", stage);
         _ = Task.Run(async () =>
         {
@@ -614,7 +671,17 @@ public sealed class RecordingOrchestrator : IRecordingOrchestrator
             }
             finally
             {
-                SetState(RecordingState.Error, ex);
+                // Don't clobber a user-initiated stop that already reached a terminal state.
+                bool report;
+                lock (_lifecycle)
+                {
+                    report = State is RecordingState.Recording or RecordingState.Paused or RecordingState.Starting;
+                }
+
+                if (report)
+                {
+                    SetState(RecordingState.Error, ex);
+                }
             }
         });
     }

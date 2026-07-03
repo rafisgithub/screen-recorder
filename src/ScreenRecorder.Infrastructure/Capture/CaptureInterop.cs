@@ -49,8 +49,9 @@ internal static class CaptureInterop
     {
         using var dxgiDevice = device.QueryInterface<IDXGIDevice>();
         int hr = CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice.NativePointer, out IntPtr inspectable);
-        if (hr != 0)
+        if (hr < 0)
         {
+            // Only negative HRESULTs are failures; positive codes (e.g. S_FALSE) are success.
             Marshal.ThrowExceptionForHR(hr);
         }
 
