@@ -1,14 +1,16 @@
 name: Pages
 
-# Publishes the privacy policy to GitHub Pages so the Microsoft Store
-# submission has a stable privacy-policy URL:
+# Publishes the marketing landing page and privacy policy to GitHub Pages:
+#   https://rafisgithub.github.io/screen-recorder/                 (landing page)
 #   https://rafisgithub.github.io/screen-recorder/privacy-policy.html
+# Both are used by the Microsoft Store listing (Website + Privacy policy URL).
 # Only the curated files below are published — the source tree is not served.
 
 on:
   push:
     branches: [main]
     paths:
+      - "index.html"
       - "privacy-policy.html"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -37,22 +39,8 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site
+          cp index.html _site/index.html
           cp privacy-policy.html _site/privacy-policy.html
-          # Root URL redirects to the privacy policy so both paths resolve.
-          cat > _site/index.html <<'HTML'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta http-equiv="refresh" content="0; url=./privacy-policy.html">
-            <link rel="canonical" href="./privacy-policy.html">
-            <title>Screen Recorder</title>
-          </head>
-          <body>
-            <p>Redirecting to the <a href="./privacy-policy.html">Screen Recorder privacy policy</a>&hellip;</p>
-          </body>
-          </html>
-          HTML
 
       # Requires a one-time repo setting: Settings > Pages > Build and
       # deployment > Source = "GitHub Actions". The built-in GITHUB_TOKEN
