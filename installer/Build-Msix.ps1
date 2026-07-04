@@ -18,6 +18,11 @@ param(
   [string]$Publisher = $env:MSIX_PUBLISHER,
   [string]$PublisherDisplayName = $env:MSIX_PUBLISHER_DISPLAY_NAME,
 
+  # Reserved app name from Partner Center (Product management > App names).
+  # Stamped into Package/Properties/DisplayName; the Store requires this to
+  # match one of the app's reserved names or it rejects the package.
+  [string]$DisplayName = $env:MSIX_DISPLAY_NAME,
+
   # Reuse an existing publish\win-x64 output instead of republishing.
   [switch]$SkipPublish
 )
@@ -61,6 +66,7 @@ $identity.Version = "$Version.0"
 if ($IdentityName) { $identity.Name = $IdentityName }
 if ($Publisher) { $identity.Publisher = $Publisher }
 if ($PublisherDisplayName) { $manifest.Package.Properties.PublisherDisplayName = $PublisherDisplayName }
+if ($DisplayName) { $manifest.Package.Properties.DisplayName = $DisplayName }
 $manifest.Save((Join-Path $LayoutDir 'AppxManifest.xml'))
 
 # Locate makeappx: prefer an installed Windows SDK, otherwise pull the

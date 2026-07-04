@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-07-04
+
+### Changed
+
+- MSIX packaging now stamps `Package/Properties/DisplayName` from the
+  `MSIX_DISPLAY_NAME` variable so it matches the reserved Microsoft Store app
+  name, which Store ingestion requires for the MSIX-packaged submission.
+
 ## [1.2.0] - 2026-07-04
 
 ### Changed
@@ -84,7 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `EncoderFactory`, `OutputPathService`, `JsonSettingsService`,
   `RecordingViewModel`, and `RecordingClock`.
 
-[Unreleased]: https://github.com/rafisgithub/screen-recorder/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/rafisgithub/screen-recorder/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/rafisgithub/screen-recorder/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/rafisgithub/screen-recorder/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rafisgithub/screen-recorder/compare/v1.0.2...v1.1.0
 [1.0.1]: https://github.com/rafisgithub/screen-recorder/compare/v1.0.0...v1.0.1
