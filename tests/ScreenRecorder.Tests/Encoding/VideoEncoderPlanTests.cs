@@ -15,14 +15,16 @@ public class VideoEncoderPlanTests
         => plan.PrivateOptions.FirstOrDefault(o => o.Key == key).Value;
 
     [Fact]
-    public void Software_uses_yuv420p_and_crf_in_quality_mode()
+    public void MediaFoundation_uses_nv12_and_quality_vbr_in_quality_mode()
     {
-        var plan = VideoEncoderPlan.Build(EncoderDescriptor.Libx264, Settings(RateControlMode.ConstantQuality, quality: 20));
+        var plan = VideoEncoderPlan.Build(EncoderDescriptor.H264Mf, Settings(RateControlMode.ConstantQuality, quality: 20));
 
-        plan.UseNv12.Should().BeFalse();
-        plan.BitRate.Should().Be(0);
-        Value(plan, "crf").Should().Be("20");
-        Value(plan, "preset").Should().Be("medium");
+        plan.UseNv12.Should().BeTrue();
+        Value(plan, "rate_control").Should().Be("quality");
+        // 20 on the 0..51 scale maps to Media Foundation quality 61 (higher = better).
+        Value(plan, "quality").Should().Be("61");
+        // A target bitrate is retained as a safety net if the MFT ignores quality mode.
+        plan.BitRate.Should().Be(12_000_000);
     }
 
     [Fact]
@@ -58,7 +60,7 @@ public class VideoEncoderPlanTests
     [Fact]
     public void Variable_bitrate_sets_bitrate_and_ceiling()
     {
-        var plan = VideoEncoderPlan.Build(EncoderDescriptor.Libx264, Settings(RateControlMode.VariableBitrate, bitrate: 12_000, maxBitrate: 20_000));
+        var plan = VideoEncoderPlan.Build(EncoderDescriptor.H264Mf, Settings(RateControlMode.VariableBitrate, bitrate: 12_000, maxBitrate: 20_000));
 
         plan.BitRate.Should().Be(12_000_000);
         plan.MaxBitRate.Should().Be(20_000_000);
@@ -67,7 +69,8 @@ public class VideoEncoderPlanTests
     [Fact]
     public void Quality_level_is_clamped_to_valid_range()
     {
-        var plan = VideoEncoderPlan.Build(EncoderDescriptor.Libx264, Settings(RateControlMode.ConstantQuality, quality: 999));
-        Value(plan, "crf").Should().Be("51");
+        // 999 clamps to 51 on the FFmpeg scale, which maps to Media Foundation quality 1 (worst).
+        var plan = VideoEncoderPlan.Build(EncoderDescriptor.H264Mf, Settings(RateControlMode.ConstantQuality, quality: 999));
+        Value(plan, "quality").Should().Be("1");
     }
 }

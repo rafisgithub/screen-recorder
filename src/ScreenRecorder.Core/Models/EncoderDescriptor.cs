@@ -18,12 +18,18 @@ public sealed record EncoderDescriptor(
     public override string ToString() => DisplayName;
 
     // ---- Well-known descriptors (used by EncoderFactory and tests) ----
+    //
+    // The software fallbacks use Windows Media Foundation (h264_mf / hevc_mf),
+    // not libx264/libx265. The bundled FFmpeg is an LGPL build (Store-safe;
+    // libx264/libx265 are GPL and are not present). Media Foundation ships with
+    // Windows and provides an OS-level H.264/HEVC encoder, so machines with no
+    // NVENC/QSV/AMF hardware encoder can still record H.264/HEVC.
 
-    public static EncoderDescriptor Libx264 { get; } =
-        new(VideoCodec.H264, EncoderKind.Software, HardwareVendor.None, "libx264", "x264 — Software (CPU)");
+    public static EncoderDescriptor H264Mf { get; } =
+        new(VideoCodec.H264, EncoderKind.Software, HardwareVendor.None, "h264_mf", "H.264 — Media Foundation");
 
-    public static EncoderDescriptor Libx265 { get; } =
-        new(VideoCodec.Hevc, EncoderKind.Software, HardwareVendor.None, "libx265", "x265 — Software (CPU)");
+    public static EncoderDescriptor HevcMf { get; } =
+        new(VideoCodec.Hevc, EncoderKind.Software, HardwareVendor.None, "hevc_mf", "HEVC — Media Foundation");
 
     public static EncoderDescriptor H264Nvenc { get; } =
         new(VideoCodec.H264, EncoderKind.Hardware, HardwareVendor.Nvidia, "h264_nvenc", "H.264 — NVIDIA NVENC");

@@ -58,8 +58,9 @@ public sealed class EncoderFactory : IEncoderFactory
             return software;
         }
 
-        // 4) Absolute fallback — always available.
-        return codec == VideoCodec.Hevc ? EncoderDescriptor.Libx265 : EncoderDescriptor.Libx264;
+        // 4) Absolute fallback — Media Foundation software encoder (LGPL-safe,
+        // ships with Windows), always available.
+        return codec == VideoCodec.Hevc ? EncoderDescriptor.HevcMf : EncoderDescriptor.H264Mf;
     }
 
     public IVideoEncoder CreateVideoEncoder(EncoderDescriptor descriptor)

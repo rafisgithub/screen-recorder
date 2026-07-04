@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**/*.msi",
+        "headers": [
+          { "key": "Content-Type", "value": "application/x-msi" },
+          { "key": "Content-Disposition", "value": "attachment" }
+        ]
+      }
+    ]
+  }
+}

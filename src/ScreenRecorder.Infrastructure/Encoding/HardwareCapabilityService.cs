@@ -55,10 +55,11 @@ public sealed class HardwareCapabilityService : IHardwareCapabilityService
                 }
             }
 
-            // Software encoders are the universal fallback; include them so the
-            // factory always has a software option for each codec.
-            AddIfCompiledIn(encoders, EncoderDescriptor.Libx264);
-            AddIfCompiledIn(encoders, EncoderDescriptor.Libx265);
+            // Media Foundation software encoders are the universal fallback so the
+            // factory always has an option for each codec even with no GPU encoder.
+            // (The LGPL FFmpeg build has no libx264/libx265; MF ships with Windows.)
+            AddIfCompiledIn(encoders, EncoderDescriptor.H264Mf);
+            AddIfCompiledIn(encoders, EncoderDescriptor.HevcMf);
 
             if (encoders.Count == 0)
             {

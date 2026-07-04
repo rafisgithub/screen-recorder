@@ -23,6 +23,6 @@ public sealed class HardwareCapabilities
     /// <summary>Software-only capabilities — the universal fallback.</summary>
     public static HardwareCapabilities SoftwareOnly { get; } = new()
     {
-        VideoEncoders = new[] { EncoderDescriptor.Libx264, EncoderDescriptor.Libx265 },
+        VideoEncoders = new[] { EncoderDescriptor.H264Mf, EncoderDescriptor.HevcMf },
     };
 }

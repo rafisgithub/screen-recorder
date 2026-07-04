@@ -13,7 +13,7 @@ audio, and a clean modern WPF interface.
 - Windows Graphics Capture at up to 1080p/60fps, with GPU frames kept on the
   GPU as long as possible
 - Hardware-accelerated H.264/HEVC encoding via NVENC, Quick Sync, or AMF,
-  with automatic fallback to `libx264`
+  with automatic fallback to Windows Media Foundation software encoding
 - System audio (WASAPI loopback) + microphone capture, mixed into the output
 - Faststart MP4 output, ready to upload
 - JSON-backed settings with pause/resume recording control
@@ -109,9 +109,10 @@ rather than opening a public issue.
 
 The project's own code is MIT — see [LICENSE](LICENSE).
 
-The installer bundles the [BtbN GPL shared build](https://github.com/BtbN/FFmpeg-Builds)
-of FFmpeg (GPL because it includes the libx264/libx265 software encoders used
-as the fallback when no hardware encoder is available). FFmpeg's license text
-is installed alongside the DLLs, and the installed bundle as a whole is
-therefore distributed under the terms of the GPL; the MIT-licensed
-application source remains freely available in this repository.
+The installer bundles the [BtbN LGPL shared build](https://github.com/BtbN/FFmpeg-Builds)
+of FFmpeg. It is LGPL — not GPL — because the GPL-only libx264/libx265 software
+encoders are excluded; H.264/HEVC come from the hardware encoders (NVENC/Quick
+Sync/AMF) and the Windows Media Foundation software fallback (`h264_mf`/`hevc_mf`).
+FFmpeg is linked dynamically as replaceable DLLs and its license text is installed
+alongside them, which keeps the installed bundle Microsoft Store-friendly (no GPL
+obligations). The MIT-licensed application source remains freely available here.

@@ -43,6 +43,11 @@ installer/AppFiles.generated.wxs
 # Build tool cache (Windows SDK build tools fetched by Build-Msix.ps1)
 .tools/
 
+# Firebase Hosting (MSI staged for the MS Store Package URL; binaries not committed)
+hosting/public/
+.firebase/
+firebase-debug.log
+
 # OS
 Thumbs.db
 desktop.ini

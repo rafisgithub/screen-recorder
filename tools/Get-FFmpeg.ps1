@@ -5,9 +5,11 @@
 .DESCRIPTION
     FFmpeg.AutoGen is a bindings-only package; the native DLLs (avcodec-61,
     avformat-61, avutil-59, swscale-8, swresample-5, ...) must be provided
-    separately. This script fetches the BtbN GPL shared build (GPL because the
-    software fallback encoders libx264/libx265 are GPL-only) and drops the DLLs
-    into <repo>\ffmpeg\, which is gitignored. The App project copies that folder
+    separately. This script fetches the BtbN LGPL shared build (LGPL so the app
+    can ship on the Microsoft Store without GPL obligations; the GPL-only
+    libx264/libx265 software encoders are absent — H.264/HEVC come from the
+    hardware encoders and the Windows Media Foundation software fallback) and
+    drops the DLLs into <repo>\ffmpeg\, which is gitignored. The App project copies that folder
     next to the built executable, where FFmpegInterop resolves it, and the MSI
     build bundles it under <install dir>\ffmpeg.
 
@@ -31,8 +33,9 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # FFmpeg 7.1 => avcodec major 61, matching FFmpeg.AutoGen 7.0.0 bindings.
-$Release = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-07-02-16-09/ffmpeg-n7.1.5-1-g7d0e842004-win64-gpl-shared-7.1.zip'
-$ReleaseSha256 = 'CFF3F0028C4777025B640C67F8176BDEAD4793E919621455B63A0AC0D243E716'
+# LGPL shared build (no GPL libx264/libx265) so the app is Microsoft Store-safe.
+$Release = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-07-02-16-09/ffmpeg-n7.1.5-1-g7d0e842004-win64-lgpl-shared-7.1.zip'
+$ReleaseSha256 = '4A1A03D34E229A8E8FC4037B615BA21B657737FF3C3FEE02D297025B4172750D'
 
 if (-not $Force -and (Test-Path (Join-Path $Destination 'avcodec-61.dll'))) {
     Write-Host "FFmpeg DLLs already present in '$Destination' (use -Force to re-download)."
@@ -65,7 +68,7 @@ try {
     New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     Copy-Item (Join-Path $bin '*.dll') -Destination $Destination -Force
 
-    # GPL compliance: ship the license text alongside the binaries.
+    # LGPL compliance: ship the license text alongside the binaries.
     $license = Join-Path $root.FullName 'LICENSE.txt'
     if (Test-Path $license) {
         Copy-Item $license -Destination (Join-Path $Destination 'FFMPEG-LICENSE.txt') -Force

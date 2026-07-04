@@ -14,6 +14,11 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    env:
+      # Set via repo secret. Generate with: firebase login:ci  (paste the token
+      # as the FIREBASE_TOKEN Actions secret). If unset, the Firebase publish
+      # step below is skipped and the GitHub release still succeeds.
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
     steps:
       - name: Checkout
@@ -70,3 +75,26 @@ jobs:
             installer/bin/ScreenRecorderSetup-x64.msi
             installer/bin/ScreenRecorder-x64.msix
           generate_release_notes: true
+
+      # Mirror the MSI to Firebase Hosting so the MS Store "Package URL" field
+      # always has a direct, non-redirecting download link. GitHub Release asset
+      # URLs 302-redirect (rejected by the Store); Firebase Hosting serves a
+      # stable 200. Live URL:
+      #   https://screen-recorder-e28df.web.app/<version>/ScreenRecorderSetup-x64.msi
+      # NOTE: Firebase Hosting is a full-site replace, so only the newest
+      # release's MSI stays live; older /<version>/ URLs 404 after the next
+      # release. That's fine for the Store flow (each submission points at its
+      # own version URL and Microsoft ingests it during certification).
+      - name: Publish MSI to Firebase Hosting (MS Store Package URL)
+        if: env.FIREBASE_TOKEN != ''
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          New-Item -ItemType Directory -Force -Path "hosting/public/$version" | Out-Null
+          Copy-Item "installer/bin/ScreenRecorderSetup-x64.msi" "hosting/public/$version/"
+          Set-Location hosting
+          npx -y firebase-tools@15 deploy --only hosting `
+            --project screen-recorder-e28df `
+            --token $env:FIREBASE_TOKEN `
+            --non-interactive
+          Write-Host "Package URL: https://screen-recorder-e28df.web.app/$version/ScreenRecorderSetup-x64.msi" -ForegroundColor Green

@@ -30,9 +30,11 @@ The release workflow already produces both artifacts a submission can use:
    rating, and a **privacy policy URL** (required; a simple GitHub Pages
    document stating that recordings stay on the user's machine and nothing
    is transmitted is sufficient).
-5. **Licensing declaration**: the package bundles the GPL build of FFmpeg
-   (license text installed alongside the DLLs). Note it under the listing's
-   additional license terms; the app source itself is MIT and public.
+5. **Licensing declaration**: the package bundles the **LGPL** build of FFmpeg,
+   linked dynamically as replaceable DLLs (license text installed alongside
+   them). No GPL components are included (the GPL-only libx264/libx265 encoders
+   are excluded), so the Store's standard license terms apply — no custom terms
+   or source offer are required. The app source itself is MIT and public.
 
 ## Per-release flow
 

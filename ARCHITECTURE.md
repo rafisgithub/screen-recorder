@@ -49,7 +49,7 @@
   `AudioFrame`s via WASAPI loopback and WASAPI capture respectively.
 - **`IEncoderFactory`** inspects **`IHardwareCapabilityService`** and the
   requested **`RecordingSettings`** to choose the best **`EncoderDescriptor`**
-  (e.g. `h264_nvenc`, `h264_qsv`, `h264_amf`, or `libx264`).
+  (e.g. `h264_nvenc`, `h264_qsv`, `h264_amf`, or `h264_mf`).
 - **`IVideoEncoder`** / **`IAudioEncoder`** encode raw frames; **`IMediaWriter`**
   muxes the encoded packets into a faststart MP4.
 - **`IRecordingOrchestrator`** owns the lifecycle (start/pause/resume/stop),

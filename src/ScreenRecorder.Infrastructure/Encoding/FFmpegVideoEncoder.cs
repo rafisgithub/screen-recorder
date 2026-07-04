@@ -8,8 +8,9 @@ namespace ScreenRecorder.Infrastructure.Encoding;
 
 /// <summary>
 /// Encodes captured BGRA frames to H.264/HEVC with FFmpeg, scaling to the target
-/// resolution and converting to the encoder's pixel format (NV12 for hardware,
-/// YUV420P for software). Hardware paths (NVENC/QSV/AMF) are selected by the
+/// resolution and converting to the encoder's pixel format (NV12 for hardware
+/// and Media Foundation, YUV420P for generic software). Hardware paths
+/// (NVENC/QSV/AMF) are selected by the
 /// <see cref="EncoderDescriptor"/>; rate control comes from <see cref="VideoEncoderPlan"/>.
 /// </summary>
 /// <remarks>MILESTONE 5 — encoding (CPU-mapped frame path).</remarks>

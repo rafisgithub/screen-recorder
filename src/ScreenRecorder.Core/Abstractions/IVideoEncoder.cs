@@ -4,7 +4,7 @@ namespace ScreenRecorder.Core.Abstractions;
 
 /// <summary>
 /// Encodes raw <see cref="VideoFrame"/>s into compressed packets. Implementations
-/// wrap a specific FFmpeg encoder (e.g. h264_nvenc, libx264).
+/// wrap a specific FFmpeg encoder (e.g. h264_nvenc, h264_mf).
 /// </summary>
 public interface IVideoEncoder : IAsyncDisposable
 {

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-04
+
+### Changed
+
+- Switched the bundled FFmpeg from the GPL build to the **LGPL** build so the
+  app can ship on the Microsoft Store without GPL obligations. The GPL-only
+  `libx264`/`libx265` software encoders are replaced by the Windows Media
+  Foundation software encoders (`h264_mf`/`hevc_mf`); hardware encoding
+  (NVENC/Quick Sync/AMF) is unchanged.
+
 ## [1.1.0] - 2026-07-02
 
 ### Added
@@ -74,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `EncoderFactory`, `OutputPathService`, `JsonSettingsService`,
   `RecordingViewModel`, and `RecordingClock`.
 
-[Unreleased]: https://github.com/rafisgithub/screen-recorder/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/rafisgithub/screen-recorder/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/rafisgithub/screen-recorder/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rafisgithub/screen-recorder/compare/v1.0.2...v1.1.0
 [1.0.1]: https://github.com/rafisgithub/screen-recorder/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rafisgithub/screen-recorder/releases/tag/v1.0.0

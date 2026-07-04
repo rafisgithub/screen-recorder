@@ -19,7 +19,7 @@ public class EncoderFactoryTests
 
         var chosen = factory.SelectVideoEncoder(settings, HardwareCapabilities.SoftwareOnly);
 
-        chosen.Should().Be(EncoderDescriptor.Libx264);
+        chosen.Should().Be(EncoderDescriptor.H264Mf);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class EncoderFactoryTests
         var factory = CreateFactory();
         var capabilities = new HardwareCapabilities
         {
-            VideoEncoders = new[] { EncoderDescriptor.H264Nvenc, EncoderDescriptor.Libx264 },
+            VideoEncoders = new[] { EncoderDescriptor.H264Nvenc, EncoderDescriptor.H264Mf },
         };
         var settings = new VideoSettings { Codec = VideoCodec.H264, PreferHardwareEncoding = true };
 
@@ -41,11 +41,11 @@ public class EncoderFactoryTests
         var factory = CreateFactory();
         var capabilities = new HardwareCapabilities
         {
-            VideoEncoders = new[] { EncoderDescriptor.H264Nvenc, EncoderDescriptor.Libx264 },
+            VideoEncoders = new[] { EncoderDescriptor.H264Nvenc, EncoderDescriptor.H264Mf },
         };
         var settings = new VideoSettings { Codec = VideoCodec.H264, PreferHardwareEncoding = false };
 
-        factory.SelectVideoEncoder(settings, capabilities).Should().Be(EncoderDescriptor.Libx264);
+        factory.SelectVideoEncoder(settings, capabilities).Should().Be(EncoderDescriptor.H264Mf);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class EncoderFactoryTests
                 EncoderDescriptor.H264Nvenc,
                 EncoderDescriptor.H264Qsv,
                 EncoderDescriptor.H264Amf,
-                EncoderDescriptor.Libx264,
+                EncoderDescriptor.H264Mf,
             },
         };
         var settings = new VideoSettings
@@ -78,7 +78,7 @@ public class EncoderFactoryTests
         var factory = CreateFactory();
         var capabilities = new HardwareCapabilities
         {
-            VideoEncoders = new[] { EncoderDescriptor.H264Qsv, EncoderDescriptor.Libx264 },
+            VideoEncoders = new[] { EncoderDescriptor.H264Qsv, EncoderDescriptor.H264Mf },
         };
         var settings = new VideoSettings
         {
@@ -96,6 +96,6 @@ public class EncoderFactoryTests
         var factory = CreateFactory();
         var settings = new VideoSettings { Codec = VideoCodec.Hevc, PreferHardwareEncoding = true };
 
-        factory.SelectVideoEncoder(settings, HardwareCapabilities.SoftwareOnly).Should().Be(EncoderDescriptor.Libx265);
+        factory.SelectVideoEncoder(settings, HardwareCapabilities.SoftwareOnly).Should().Be(EncoderDescriptor.HevcMf);
     }
 }
